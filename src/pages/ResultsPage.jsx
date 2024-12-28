@@ -1,78 +1,78 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  getCategories,
+  getContestants,
+  getAllVotes,
+} from '../services/storage';
 
 const ResultsPage = () => {
-  const navigate = useNavigate(); // Navigation hook
-  const [categories, setCategories] = useState([]); // Categories state
-  const [contestants, setContestants] = useState([]); // Contestants state
-  const [votes, setVotes] = useState({}); // Votes state
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [contestants, setContestants] = useState([]);
+  const [voteCounts, setVoteCounts] = useState({});
 
   useEffect(() => {
-    // Safely fetch data from localStorage
-    const storedCategories =
-      JSON.parse(localStorage.getItem('categories')) || [];
-    const storedContestants =
-      JSON.parse(localStorage.getItem('contestants')) || [];
-    const storedVotes = JSON.parse(localStorage.getItem('votes')) || {};
-
+    // Fetch categories and contestants from the local storage
+    const storedCategories = getCategories();
+    const storedContestants = getContestants();
     setCategories(storedCategories);
     setContestants(storedContestants);
-    setVotes(storedVotes);
+
+    // total votes
+    const allVotes = getAllVotes();
+    const aggregatedVotes = {};
+
+    // Initialize counts for each contestant
+    storedContestants.forEach((contestant) => {
+      aggregatedVotes[contestant.id] = 0;
+    });
+
+    // Count votes for each contestant
+    Object.values(allVotes).forEach((userVotes) => {
+      Object.entries(userVotes).forEach(([categoryId, contestantId]) => {
+        if (aggregatedVotes[contestantId] !== undefined) {
+          aggregatedVotes[contestantId]++;
+        }
+      });
+    });
+
+    // Set the total vote counts
+    setVoteCounts(aggregatedVotes);
   }, []);
 
-  // Function to calculate votes for each contestant
-  const calculateVotes = () => {
-    const voteCounts = {};
-
-    // Initialize each contestant's vote count to 0
-    contestants.forEach((contestant) => {
-      voteCounts[contestant.id] = 0;
-    });
-
-    // Count votes
-    Object.values(votes).forEach((votedContestantId) => {
-      if (voteCounts[votedContestantId] !== undefined) {
-        voteCounts[votedContestantId]++;
-      }
-    });
-
-    return voteCounts;
-  };
-
-  const voteCounts = calculateVotes();
-
   const handleReturnHome = () => {
-    navigate('/'); // Navigate to the homepage
+    navigate('/');
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen flex items-center justify-center p-6">
-      <div className="bg-white shadow-md rounded-xl p-6 sm:p-8 w-full max-w-4xl">
-        <h1 className="text-4xl font-bold text-center text-blue-600 mb-8">
+    <div className="flex items-center justify-center p-4 bg-gray-50">
+      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-3xl">
+        <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
           Voting Results
         </h1>
 
-        {/* Display categories in a simple, clean manner */}
-        <div className="space-y-8">
+        <div className="space-y-6">
           {categories.map((category) => (
-            <div key={category.id}>
-              {/* Category Name */}
-              <h2 className="text-3xl font-semibold text-gray-800 mb-4 text-center">
+            <div
+              key={category.id}
+              className="bg-gray-100 p-4 rounded-md shadow-md"
+            >
+              <h2 className="text-2xl font-semibold text-center text-gray-800 mb-4">
                 {category.name}
               </h2>
-
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                 {contestants
-                  .filter((contestant) => contestant.categoryId === category.id) // Filter contestants by category
+                  .filter((contestant) => contestant.categoryId === category.id)
                   .map((contestant) => (
                     <li
                       key={contestant.id}
-                      className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm transition duration-200 ease-in-out hover:shadow-lg"
+                      className="flex justify-between items-center p-3 bg-white rounded-md shadow-sm"
                     >
-                      <span className="text-xl text-gray-700">
+                      <span className="text-lg text-gray-700">
                         {contestant.name}
                       </span>
-                      <span className="text-lg font-semibold text-blue-500">
+                      <span className="text-base font-semibold text-blue-500">
                         {voteCounts[contestant.id] || 0} Votes
                       </span>
                     </li>
@@ -82,11 +82,10 @@ const ResultsPage = () => {
           ))}
         </div>
 
-        {/* Return to Homepage Button */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-6">
           <button
             onClick={handleReturnHome}
-            className="bg-blue-500 text-white px-6 py-3 rounded-full text-lg hover:bg-blue-600 transition duration-300"
+            className="bg-blue-500 text-white px-5 py-2 rounded-md text-lg hover:bg-blue-600 transition duration-200"
           >
             Return to Home
           </button>
