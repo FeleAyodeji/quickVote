@@ -3,43 +3,63 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getCategories, getVotes, setVotes } from '../services/storage';
 import VoteButton from '../components/VoteButton';
 
-const CategoryPage = () => {
-  const { categoryId } = useParams(); // Extract categoryId from URL
-  const navigate = useNavigate(); // Navigation hook for "Next" button
+const getOrCreateUserId = () => {
+  let userIds = localStorage.getItem('userIds');
+  let currentLogginuser = '';
+  if (userIds) {
+    let users = JSON.parse(userIds);
+    currentLogginuser = users[users.length - 1];
+  }
 
-  const [category, setCategory] = useState(null); // Current category
+  if (currentLogginuser == '') {
+    alert('User not logged in');
+    navigate('/');
+  }
+
+  return currentLogginuser.id;
+};
+
+const CategoryPage = () => {
+  const { categoryId, userId } = useParams(); // get the  categoryId from URL
+  const navigate = useNavigate(); // Navigation hook for next button and homepage
+  const [category, setCategory] = useState(null);
   const [contestants, setContestants] = useState([]); // Contestants for the category
   const [votes, setVotesState] = useState({}); // User's votes
   const [categories, setCategories] = useState([]); // All categories
 
+  //const userId = getOrCreateUserId(); // set the Unique user identifier
+
   useEffect(() => {
-    // Load categories
+    // Load the categories
+    // const current_userId = prompt("What's your name");
+
     const allCategories = getCategories();
     setCategories(allCategories);
 
     // Find and set the current category
     const foundCategory = allCategories.find((cat) => cat.id === categoryId);
+
     setCategory(foundCategory);
 
     // Fetch and filter contestants by categoryId
     const allContestants =
-      JSON.parse(localStorage.getItem('contestants')) || [];
+      JSON.parse(localStorage.getItem('contestants')) || []; // get all the contest
     const filteredContestants = allContestants.filter(
       (contestant) => contestant.categoryId === categoryId,
     );
     setContestants(filteredContestants);
 
-    // Load votes from storage
-    const storedVotes = getVotes();
+    // Load votes for the current user
+    const storedVotes = getVotes(userId);
     setVotesState(storedVotes);
-  }, [categoryId]);
+  }, [categoryId, userId]);
 
   const handleVote = (contestantId) => {
     // Allow voting only if the user hasn't voted in this category yet
     if (!votes[categoryId]) {
       const updatedVotes = { ...votes, [categoryId]: contestantId }; // Update votes
-      setVotes(updatedVotes); // Save to localStorage
-      setVotesState(updatedVotes); // Update state
+      setVotes(userId, updatedVotes); // Save votes for the user
+      setVotesState(updatedVotes);
     }
   };
 
@@ -50,7 +70,7 @@ const CategoryPage = () => {
     // Check if there is a next category
     if (currentIndex + 1 < categories.length) {
       const nextCategoryId = categories[currentIndex + 1].id;
-      navigate(`/category/${nextCategoryId}`); // Navigate to the next category
+      navigate(`/category/${nextCategoryId}/${userId}`); // Navigate to the next category
     } else {
       navigate('/results'); // Redirect to the results page
     }
@@ -79,7 +99,7 @@ const CategoryPage = () => {
               </span>
               <VoteButton
                 onClick={() => handleVote(contestant.id)}
-                voted={votes[categoryId] === contestant.id} // Check if already voted
+                voted={votes[categoryId] === contestant.id}
               />
             </li>
           ))}
