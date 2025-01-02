@@ -41,6 +41,8 @@ const ResultsPage = () => {
     setVoteCounts(aggregatedVotes);
   }, []);
 
+  //this function returns the page back to the homepage
+
   const handleReturnHome = () => {
     navigate('/');
   };
