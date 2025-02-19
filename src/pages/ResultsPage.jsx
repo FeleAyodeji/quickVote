@@ -51,7 +51,7 @@ const ResultsPage = () => {
     <div className="flex items-center justify-center p-4 bg-gray-50">
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-3xl">
         <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
-          Voting Results
+          Thank You for Voting , Next Voter can Vote now!
         </h1>
 
         <div className="space-y-6">

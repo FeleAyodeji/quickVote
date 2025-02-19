@@ -1,9 +1,9 @@
 // Initialize Data in LocalStorage
 const initializeData = () => {
   const categories = [
-    { id: '1', name: 'Best Actor' },
-    { id: '2', name: 'Best Actress' },
-    { id: '3', name: 'Best Director' },
+    { id: '1', name: 'Category 1' },
+    { id: '2', name: 'Category 2' },
+    { id: '3', name: 'Category 3' },
   ];
 
   const contestants = [
