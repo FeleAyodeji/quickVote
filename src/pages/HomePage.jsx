@@ -42,9 +42,12 @@ const LoginUser = ({ onLogin }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white w-full max-w-md rounded-lg shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Please enter your name
-        </h2>
+        <h1 className="text-3xl font-extrabold text-center text-indigo-600 mb-4">
+          Welcome to QuickVote
+        </h1>
+        <p className="text-lg text-center text-gray-700 mb-6">
+          Kindly input your name to be a valid voter
+        </p>
         <input
           type="text"
           className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
